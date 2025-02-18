@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName      String?
+  lastName       String?
+}
+
+model List {
+  id        String   @id @default(cuid())
+  name      String
+  deleted   Boolean @default(false)
+  groups    ListGroup[]
+  items     ListItem[]
+  ListSettings ListSettings[]
+}
+
+model ListGroup {
+  id        String   @id @default(cuid())
+  name      String
+  items     ListItem[]
+  list List @relation(fields: [listId], references: [id])
+  listId    String
+}
+
+model ListItem {
+  id        String   @id @default(uuid())
+  name      String
+  completed Boolean @default(false)
+  list List @relation(fields: [listId], references: [id])
+  listId    String  
+  group ListGroup? @relation(fields: [groupId], references: [id])
+  groupId   String?
+}
+
+model ListSettings {
+  id        String   @id @default(cuid())
+  list List @relation(fields: [listId], references: [id])
+  listId    String
+  deleteOnCompletion Boolean @default(false)
+  autoCategorise Boolean @default(false)
+  useLocationBasedCategories Boolean @default(false)
+}
